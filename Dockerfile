@@ -25,21 +25,16 @@ ENV MCP_REMOTE_VERSION=0.14.2 \
 
 RUN npm install -g "mcp-remote@${MCP_REMOTE_VERSION}" && npm cache clean --force
 
+# Entrypoint is a committed script copied with plain COPY + chmod: some
+# directory builders (Glama included) run a non-BuildKit build, which rejects
+# heredocs and COPY --chmod.
+COPY entrypoint.sh /usr/local/bin/pigi-mcp
+RUN chmod 755 /usr/local/bin/pigi-mcp
+
 USER node
 WORKDIR /home/node
 RUN mkdir -p /home/node/.mcp-auth
 VOLUME ["/home/node/.mcp-auth"]
 EXPOSE 3334
 
-# With PIGI_MCP_TOKEN: static Bearer auth, no OAuth. Without it: OAuth on a
-# fixed callback port (mcp-remote's positional port argument) so the redirect
-# URI is stable across runs; 120 s gives a human time to complete the sign-in.
-COPY --chmod=755 <<'SH' /usr/local/bin/pigi-mcp
-#!/bin/sh
-set -e
-if [ -n "$PIGI_MCP_TOKEN" ]; then
-  exec mcp-remote "$PIGI_MCP_URL" --header "Authorization:Bearer $PIGI_MCP_TOKEN"
-fi
-exec mcp-remote "$PIGI_MCP_URL" "$OAUTH_CALLBACK_PORT" --auth-timeout 120
-SH
 ENTRYPOINT ["/usr/local/bin/pigi-mcp"]
