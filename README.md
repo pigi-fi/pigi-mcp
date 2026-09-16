@@ -106,7 +106,7 @@ npx skills add pigi-fi/pigi-skills --yes
 
 | Tool | What it returns | Key arguments |
 |---|---|---|
-| `list_vaults` | A page of vaults with TVL, APR/APY, age, protocol, chain and (where assessed) `risk_band` / `risk_score`. Returns `id` (for `get_vault`) and `strategy_id` (for history/stats). | `protocol_name`, `chain_id`, `tvl_filter` (`gte_1m` … `gte_10m`), `apr_filter` (`gt_5` … `gt_20`, `lte_10`), `age_filter`, `limit`, `offset` |
+| `list_vaults` | A page of vaults with TVL, APR, asset class, age, protocol, chain and (where assessed) `risk_band`, `risk_score` and `risk_adjusted_apr`. Returns `id` (for `get_vault`) and `strategy_id` (for history/stats). | `protocol_name`, `chain_id`, `asset_class` (`stable` / `mixed` / `non-stable`), `search` (name substring, e.g. `USDC`), `risk_band` (e.g. `["A","B"]`), `min_risk_score`, `tvl_filter`, `apr_filter`, `age_filter`, `sort` (`apr_desc`, `tvl_desc`, `risk_score_desc`, `risk_adjusted_apr_desc`), `limit`, `offset` |
 | `get_vault` | Full record for one vault by pool `id`. | `id` |
 | `get_vault_history` | Daily series: TVL, APR, APY, risk-adjusted APR (APR minus a penalty derived from the risk score) and 30-day moving averages. | `strategy_id`, `range` (`7D` / `30D` / `90D` / `180D`) |
 | `get_vault_stats` | Windowed aggregates: TVL low/high, APR, APY and net inflows for weekly / monthly / quarterly / yearly. | `strategy_id`, `period` |
@@ -114,7 +114,7 @@ npx skills add pigi-fi/pigi-skills --yes
 | `get_hacks` | DeFi hack / exploit loss events plus major TradFi losses, with a `summary` totalling the whole filtered set. | `category`, `type` (DeFi / Dexes / Bridges), `from`, `to`, `min_amount`, `sort`, `limit`, `offset` |
 | `get_usage` | Your request count this month and plan limit. | — |
 
-`list_vaults` filters by protocol, chain, TVL band, APR band and age. Filtering by asset (e.g. USDC) or risk band is done by the agent on the returned page; narrow with the server-side filters first.
+"Best low-risk USDC vault" is a single call: `list_vaults({ search: "USDC", asset_class: "stable", risk_band: ["A", "B"], sort: "risk_adjusted_apr_desc" })`.
 
 ## Coverage
 
