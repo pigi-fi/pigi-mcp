@@ -6,7 +6,8 @@
 #
 # The registry refuses to overwrite an existing version, so the tag must match
 # the "version" field in server.json (checked below) and every republish needs
-# a bump there first.
+# a bump there first. After a successful publish the same tag gets a GitHub
+# Release (directories such as Glama score listings on having releases).
 
 name: Publish to MCP registry
 
@@ -16,8 +17,8 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  id-token: write
+  contents: write   # create the GitHub Release
+  id-token: write   # registry OIDC login
 
 env:
   MCP_PUBLISHER_VERSION: v1.8.1
@@ -54,3 +55,14 @@ jobs:
 
       - name: Publish
         run: mcp-publisher publish
+
+      - name: Create GitHub Release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 && exit 0
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --notes "Published to the MCP registry as io.github.pigi-fi/pigi-mcp ${GITHUB_REF_NAME#v}. Endpoint: https://mcp.pigi.finance/api/mcp"
