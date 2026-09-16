@@ -17,13 +17,23 @@ Listed in the [official MCP registry](https://registry.modelcontextprotocol.io/?
 
 ## Install
 
-The fastest path is to paste this into your agent and let it do the setup:
+**Any MCP client** (Claude Desktop, Cursor, Windsurf and most others: add to the MCP config file)
+
+```json
+{
+  "mcpServers": {
+    "pigi": { "url": "https://mcp.pigi.finance/api/mcp" }
+  }
+}
+```
+
+Or paste this into your agent and let it do the setup:
 
 ```
 Read https://raw.githubusercontent.com/pigi-fi/pigi-skills/refs/heads/main/pigi-setup/SKILL.md and follow the instructions to connect to pigi.finance MCP
 ```
 
-Or add the server by hand.
+CLI clients:
 
 **Claude Code**
 
@@ -35,16 +45,6 @@ claude mcp add pigi --transport http https://mcp.pigi.finance/api/mcp
 
 ```bash
 codex mcp add pigi --url https://mcp.pigi.finance/api/mcp
-```
-
-**Claude Desktop / Cursor / Windsurf** (MCP config file)
-
-```json
-{
-  "mcpServers": {
-    "pigi": { "url": "https://mcp.pigi.finance/api/mcp" }
-  }
-}
 ```
 
 **Gemini CLI**
@@ -83,7 +83,8 @@ codex mcp add pigi --url https://mcp.pigi.finance/api/mcp
 **Docker** (stdio bridge to the hosted server, for runners that need a local process)
 
 ```bash
-docker build -t pigi-mcp https://github.com/pigi-fi/pigi-mcp.git
+git clone https://github.com/pigi-fi/pigi-mcp.git && cd pigi-mcp
+docker build -t pigi-mcp .
 docker run -i --rm -p 3334:3334 -v pigi-mcp-auth:/home/node/.mcp-auth pigi-mcp
 ```
 
@@ -117,15 +118,13 @@ npx skills add pigi-fi/pigi-skills --yes
 
 ## Tools
 
-| Tool | What it returns | Key arguments |
-|---|---|---|
-| `list_vaults` | A page of vaults with TVL, APR, asset class, age, protocol, chain and (where assessed) `risk_band`, `risk_score` and `risk_adjusted_apr`. Returns `id` (for `get_vault`) and `strategy_id` (for history/stats). | `protocol_name`, `chain_id`, `asset_class` (`stable` / `mixed` / `non-stable`), `search` (name substring, e.g. `USDC`), `risk_band` (e.g. `["A","B"]`), `min_risk_score`, `tvl_filter`, `apr_filter`, `age_filter`, `sort` (`apr_desc`, `tvl_desc`, `risk_score_desc`, `risk_adjusted_apr_desc`), `limit`, `offset` |
-| `get_vault` | Full record for one vault by pool `id`. | `id` |
-| `get_vault_history` | Daily series: TVL, APR, APY, risk-adjusted APR (APR minus a penalty derived from the risk score) and 30-day moving averages. | `strategy_id`, `range` (`7D` / `30D` / `90D` / `180D`) |
-| `get_vault_stats` | Windowed aggregates: TVL low/high, APR, APY and net inflows for weekly / monthly / quarterly / yearly. | `strategy_id`, `period` |
-| `get_rates` | DeFi Base Rate (stablecoin and ETH vault-set mean yield) and the 3-month U.S. T-bill rate, last ~30 daily points. | — |
-| `get_hacks` | DeFi hack / exploit loss events plus major TradFi losses, with a `summary` totalling the whole filtered set. | `category`, `type` (DeFi / Dexes / Bridges), `from`, `to`, `min_amount`, `sort`, `limit`, `offset` |
-| `get_usage` | Your request count this month and plan limit. | — |
+- `list_vaults` — List DeFi vaults with TVL, APR, asset class, age, protocol, chain and, where assessed, `risk_band`, `risk_score` and `risk_adjusted_apr`. Filter by `protocol_name`, `chain_id`, `asset_class` (stable / mixed / non-stable), `search` (name substring, e.g. USDC), `risk_band` (e.g. ["A","B"]), `min_risk_score`, `tvl_filter`, `apr_filter`, `age_filter`; sort by `apr_desc`, `tvl_desc`, `risk_score_desc` or `risk_adjusted_apr_desc`; paginate with `limit` / `offset`. Returns `id` (for `get_vault`) and `strategy_id` (for history and stats).
+- `get_vault` — Full record for one vault by pool `id`.
+- `get_vault_history` — Daily series for a vault: TVL, APR, APY, risk-adjusted APR (APR minus a penalty derived from the risk score) and 30-day moving averages. Arguments: `strategy_id`, `range` (7D / 30D / 90D / 180D).
+- `get_vault_stats` — Windowed aggregates for a vault: TVL low/high, APR, APY and net inflows over weekly, monthly, quarterly and yearly windows. Arguments: `strategy_id`, optional `period`.
+- `get_rates` — DeFi Base Rate (stablecoin and ETH vault-set mean yield) and the 3-month U.S. T-bill rate, last ~30 daily points. No arguments.
+- `get_hacks` — DeFi hack and exploit loss events plus major TradFi losses, with a `summary` totalling the whole filtered set. Arguments: `category`, `type` (DeFi / Dexes / Bridges), `from`, `to`, `min_amount`, `sort`, `limit`, `offset`.
+- `get_usage` — Your request count this month and plan limit. No arguments.
 
 "Best low-risk USDC vault" is a single call: `list_vaults({ search: "USDC", asset_class: "stable", risk_band: ["A", "B"], sort: "risk_adjusted_apr_desc" })`.
 
