@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.pigi-fi/pigi-mcp",
+  "title": "pigi.finance — DeFi Vault Intelligence",
+  "description": "DeFi vault data from pigi.finance: yields, TVL, history and risk ratings across chains.",
+  "websiteUrl": "https://app.pigi.finance/defi-mcp",
+  "repository": {
+    "url": "https://github.com/pigi-fi/pigi-mcp",
+    "source": "github"
+  },
+  "icons": [
+    {
+      "src": "https://pigi.finance/favicon-512x512.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
+  "version": "0.1.3",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.pigi.finance/api/mcp"
+    }
+  ]
+}
