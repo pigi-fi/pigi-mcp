@@ -80,6 +80,17 @@ codex mcp add pigi --url https://mcp.pigi.finance/api/mcp
 }
 ```
 
+**Docker** (stdio bridge to the hosted server, for runners that need a local process)
+
+```bash
+docker build -t pigi-mcp https://github.com/pigi-fi/pigi-mcp.git
+docker run -i --rm -p 3334:3334 -v pigi-mcp-auth:/home/node/.mcp-auth pigi-mcp
+```
+
+First run prints a sign-in URL; open it on the host. The callback lands on port 3334, and the named volume keeps the token so later runs skip sign-in.
+
+For non-interactive use (a directory inspector, a service), pass a service token instead and OAuth is skipped: `docker run -i --rm -e PIGI_MCP_TOKEN=... pigi-mcp`. Service tokens are issued by pigi.finance for specific integrations.
+
 ### Authenticate
 
 On first connect the client opens an OAuth 2.1 sign-in (WorkOS AuthKit). A free account is provisioned on first login. If you already use the pigi.finance REST API, sign in with the same email: the MCP shares that account's plan and quota.
