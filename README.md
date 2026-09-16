@@ -91,6 +91,8 @@ First run prints a sign-in URL; open it on the host. The callback lands on port 
 
 For non-interactive use (a directory inspector, a service), pass a service token instead and OAuth is skipped: `docker run -i --rm -e PIGI_MCP_TOKEN=... pigi-mcp`. Service tokens are issued by pigi.finance for specific integrations.
 
+Runners that clone this repo into their own image instead of building the Dockerfile (Glama does this) need one build step, `npm install -g mcp-remote@0.14.2`, and the command `["/app/entrypoint.sh"]`; the script carries its own defaults.
+
 ### Authenticate
 
 On first connect the client opens an OAuth 2.1 sign-in (WorkOS AuthKit). A free account is provisioned on first login. If you already use the pigi.finance REST API, sign in with the same email: the MCP shares that account's plan and quota.
