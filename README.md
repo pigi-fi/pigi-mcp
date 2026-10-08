@@ -115,11 +115,14 @@ npx skills add pigi-fi/pigi-skills --yes
 - "Which vaults in Morpho had net outflows this month?"
 - "How does the DeFi base rate compare with the 3-month T-bill right now?"
 - "How much was lost to bridge exploits in 2025?"
+- "How does pigi rate Aave V3 on Ethereum as a protocol, and which vaults drive that number?"
 
 ## Tools
 
 - `list_vaults` — List DeFi vaults with TVL, APR, asset class, age, protocol, chain and, where assessed, `risk_band`, `risk_score` and `risk_adjusted_apr`. Filter by `protocol_name`, `chain_id`, `asset_class` (stable / mixed / non-stable), `search` (name substring, e.g. USDC), `risk_band` (e.g. ["A","B"]), `min_risk_score`, `tvl_filter`, `apr_filter`, `age_filter`; sort by `apr_desc`, `tvl_desc`, `risk_score_desc` or `risk_adjusted_apr_desc`; paginate with `limit` / `offset`. Returns `id` (for `get_vault`) and `strategy_id` (for history and stats).
 - `get_vault` — Full record for one vault by pool `id`.
+- `list_protocols` — pigi's cumulative protocol rating for every rated protocol node, in one call: `score = 0.6 × the protocol node's own rating + 0.4 × the TVL-weighted mean of the published scores of the vaults that deposit into it`, with `band` (A safest .. F), the node rating and the vault aggregates. Node ids look like `aave-v3-ethereum`, `euler-v2`, `morpho-blue-ethereum`. Optional `chain_id` narrows which vaults count.
+- `get_protocol` — One protocol node's cumulative rating with the vaults that counted (published score, band, TVL, weight; largest first). Arguments: `node_id` (from `list_protocols`), optional `chain_id`.
 - `get_vault_history` — Daily series for a vault: TVL, APR, APY, risk-adjusted APR (APR minus a penalty derived from the risk score) and 30-day moving averages. Arguments: `strategy_id`, `range` (7D / 30D / 90D / 180D).
 - `get_vault_stats` — Windowed aggregates for a vault: TVL low/high, APR, APY and net inflows over weekly, monthly, quarterly and yearly windows. Arguments: `strategy_id`, optional `period`.
 - `get_rates` — DeFi Base Rate (stablecoin and ETH vault-set mean yield) and the 3-month U.S. T-bill rate, last ~30 daily points. No arguments.
